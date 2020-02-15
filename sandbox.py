@@ -14,7 +14,7 @@ easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to l
 
 
 
-masker = np.zeros((720, 1280, 1), dtype=np.uint8)
+masker = np.zeros((480, 640, 1), dtype=np.uint8)
 
 # Adds a white rectangle into the mask. (image, start cord, end cord, color, line width where -1 means fill
 
@@ -60,9 +60,9 @@ def on_mouse(event, x, y, flags, params):
 def show_webcam():
     global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker, blend
     zoom = False
-    cap = cv2.VideoCapture(0)
-    cap.set(3, 1280) #Frame width
-    cap.set(4, 720) #Frame Height
+    cap = cv2.VideoCapture(1)
+    cap.set(3, 640) #Frame width
+    cap.set(4, 480) #Frame Height
     cv2.namedWindow('ExpatAudio AOI')
     cv2.setMouseCallback('ExpatAudio AOI', on_mouse, 0)
 
