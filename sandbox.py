@@ -13,7 +13,7 @@ masker = np.zeros((720, 1280, 1), dtype=np.uint8)
 # Adds a white rectangle into the mask. (image, start cord, end cord, color, line width where -1 means fill
 
 
-
+blend = False
 show_mask = False
 exitplease = False
 drag = False
@@ -52,7 +52,7 @@ def on_mouse(event, x, y, flags, params):
 
 
 def show_webcam():
-    global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker
+    global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker, blend
     zoom = False
     cap = cv2.VideoCapture(0)
     cap.set(3, 1280) #Frame width
@@ -70,18 +70,18 @@ def show_webcam():
         char = chr(cv2.waitKey(1) & 255)
         if (char == 'q'): # Quit
             break
-        elif (char == 27): #Quit
+        elif (char == 27): # Quit
             break
-        elif (char == 's'): #Save Current Display
+        elif (char == 's'): # Save Current Display
             cv2.imwrite("output.jpg", OutputImage)
-        elif (char == 'l'): #Load Mask from External File
+        elif (char == 'l'): # Load Mask from External File
             masker = cv2.imread("mask2.png", 0)
         elif (char == 'r'): # Reset the mask
             masker = np.zeros((720, 1280, 1), dtype=np.uint8)
-        elif (char == 'm'): #Show/Not Show Mask
+        elif (char == 'm'): # Show/Not Show Mask
             show_mask = not show_mask
-        #elif (char == 'z'):
-        #    zoom = not zoom
+        elif (char == 'b'): # blend
+            blend = not blend
 
 
 
@@ -96,6 +96,11 @@ def show_webcam():
         elif show_mask == True:
             maskedgray = cv2.bitwise_and(gray, gray, mask=masker)
             OutputImage = maskedgray
+
+        if blend == True:
+            alpha = 0.5
+            beta = (1.0 - alpha)
+            OutputImage = cv2.addWeighted(gray, alpha, masker, beta, 0.0)
 
         # Display the resulting frame
         cv2.imshow('ExpatAudio AOI', OutputImage)
