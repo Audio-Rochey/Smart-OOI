@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import easygui
 
 # from os import listdir
 # from time import time
@@ -8,6 +9,11 @@ import numpy as np
 # black blank image
 #blank_image = np.zeros(shape=[720, 1280, 3], dtype=np.uint8)
 #masker = blank_image
+
+easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
+
+
+
 masker = np.zeros((720, 1280, 1), dtype=np.uint8)
 
 # Adds a white rectangle into the mask. (image, start cord, end cord, color, line width where -1 means fill
@@ -73,9 +79,11 @@ def show_webcam():
         elif (char == 27): # Quit
             break
         elif (char == 's'): # Save Current Display
-            cv2.imwrite("output.jpg", OutputImage)
+            outputfilename = easygui.filesavebox(msg="Save whatever is on the screen", title="Save as PNG", default='', filetypes="*.png")
+            cv2.imwrite(outputfilename, masker) # Saves whatever the mask is to the file
         elif (char == 'l'): # Load Mask from External File
-            masker = cv2.imread("mask2.png", 0)
+            masktoopen = easygui.fileopenbox(msg=None, title=None, default='*', filetypes=None, multiple=False)
+            masker = cv2.imread(masktoopen, 0)
         elif (char == 'r'): # Reset the mask
             masker = np.zeros((720, 1280, 1), dtype=np.uint8)
         elif (char == 'm'): # Show/Not Show Mask
@@ -83,9 +91,12 @@ def show_webcam():
         elif (char == 'b'): # blend
             blend = not blend
 
+        # This magic line shuts down the app if a user presses the X button in the GUI
+        if cv2.getWindowProperty('ExpatAudio AOI', cv2.WND_PROP_VISIBLE) < 1:
+            break
 
 
-        # Our operations on the frame come here
+            # Our operations on the frame come here
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         if exitplease == True:
