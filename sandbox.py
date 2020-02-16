@@ -2,14 +2,21 @@ import cv2
 import numpy as np
 import easygui
 
-#User set parameters
-#
+# User Interface
+# Q to quit
+# M to Mask only areas from cam
+# B to blend
+# L to load mask
+# S to save mask
+#  cvR to reset the mask\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
 
 
+
+# User set parameters
 camerapixwidth = 1280
-camerapixheight = 720
-SelectedCam = 0
-UsingWindows = True
+camerapixheight = 720 # Resolution to be used. this is very camera specific.
+SelectedCam = 0 # Which webcam will be used?
+UsingWindows = True # Later in the code, this is used to allow directx to talk to webcams (for more resolution flexibility)
 
 easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
 
@@ -18,10 +25,10 @@ easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to l
 #Draws a blank canvas for the Mask
 masker = np.zeros((camerapixheight, camerapixwidth, 1), dtype=np.uint8)
 
-
 # System Globals to track settings.
 blend = False
 show_mask = False
+zoom = False
 exitplease = False
 drag = False
 drag_start = (0,0)
@@ -97,6 +104,8 @@ def show_webcam():
             show_mask = not show_mask
         elif (char == 'b'): # blend
             blend = not blend
+        elif (char == 'z'):
+            zoom = not zoom
 
         # This magic line shuts down the app if a user presses the X button in the GUI
         if cv2.getWindowProperty('ExpatAudio AOI', cv2.WND_PROP_VISIBLE) < 1:
@@ -119,6 +128,13 @@ def show_webcam():
             alpha = 0.5
             beta = (1.0 - alpha)
             OutputImage = cv2.addWeighted(gray, alpha, masker, beta, 0.0)
+
+        if zoom == True:
+            sub = gray[320:454, 544:680]
+            ZoomedImage = cv2.resize(sub, (0, 0), fx=4, fy=4)
+            cv2.imshow('ZOOM', ZoomedImage)
+        else:
+            cv2.destroyWindow("ZOOM")
 
         # Display the resulting frame
         cv2.imshow('ExpatAudio AOI', OutputImage)
