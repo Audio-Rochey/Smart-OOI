@@ -2,23 +2,24 @@ import cv2
 import numpy as np
 import easygui
 
-# from os import listdir
-# from time import time
-# from os.path import isfile, join
+#User set parameters
+#
 
-# black blank image
-#blank_image = np.zeros(shape=[720, 1280, 3], dtype=np.uint8)
-#masker = blank_image
+
+camerapixwidth = 1280
+camerapixheight = 720
+SelectedCam = 0
+UsingWindows = True
 
 easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
 
 
 
-masker = np.zeros((480, 640, 1), dtype=np.uint8)
+#Draws a blank canvas for the Mask
+masker = np.zeros((camerapixheight, camerapixwidth, 1), dtype=np.uint8)
 
-# Adds a white rectangle into the mask. (image, start cord, end cord, color, line width where -1 means fill
 
-
+# System Globals to track settings.
 blend = False
 show_mask = False
 exitplease = False
@@ -26,8 +27,7 @@ drag = False
 drag_start = (0,0)
 drag_end = (0,0)
 
-#masker = cv2.imread("mask.png",0)
-# cv2.namedWindow('ExpatAudio AOI')
+
 
 
 def on_mouse(event, x, y, flags, params):
@@ -58,11 +58,18 @@ def on_mouse(event, x, y, flags, params):
 
 
 def show_webcam():
-    global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker, blend
+    global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker, blend, camerapixwidth, camerapixheight, SelectedCam
     zoom = False
-    cap = cv2.VideoCapture(1)
-    cap.set(3, 640) #Frame width
-    cap.set(4, 480) #Frame Height
+
+    if UsingWindows == True:
+        cap = cv2.VideoCapture(SelectedCam, cv2.CAP_DSHOW) # this uses directshow apparently.
+    else:
+        cap = cv2.VideoCapture(SelectedCam) # Standard line used in openCV
+
+
+
+    cap.set(3, camerapixwidth) #Frame width
+    cap.set(4, camerapixheight) #Frame Height
     cv2.namedWindow('ExpatAudio AOI')
     cv2.setMouseCallback('ExpatAudio AOI', on_mouse, 0)
 
