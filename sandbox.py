@@ -8,7 +8,9 @@ import easygui
 # B to blend
 # L to load mask
 # S to save mask
-#  cvR to reset the mask\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
+# R to reset the mask
+# Z to zoom in 4x on an area defined by the placement of the mouse
+# Use left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
 
 
 
@@ -18,7 +20,7 @@ camerapixheight = 720 # Resolution to be used. this is very camera specific.
 SelectedCam = 0 # Which webcam will be used?
 UsingWindows = True # Later in the code, this is used to allow directx to talk to webcams (for more resolution flexibility)
 
-easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
+easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nZ to zoom in on an area\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
 
 
 
@@ -33,12 +35,12 @@ exitplease = False
 drag = False
 drag_start = (0,0)
 drag_end = (0,0)
-
+mouse_current_pos = (200,200)
 
 
 
 def on_mouse(event, x, y, flags, params):
-    global drag, drag_start, drag_end, img, patterns, regions, exitplease, masker
+    global drag, drag_start, drag_end, img, patterns, regions, exitplease, masker, mouse_current_pos
 
     if event == cv2.EVENT_RBUTTONDOWN:
         exitplease = 1
@@ -63,9 +65,12 @@ def on_mouse(event, x, y, flags, params):
         print(drag_start)
         print(drag_end)
 
+    elif event == cv2.EVENT_MOUSEMOVE and drag == False:
+        mouse_current_pos = (x, y)
+
 
 def show_webcam():
-    global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker, blend, camerapixwidth, camerapixheight, SelectedCam
+    global drag_start, drag_end, img, patterns, regions, show_regions, show_mask, masker, blend, camerapixwidth, camerapixheight, SelectedCam, mouse_current_pos
     zoom = False
 
     if UsingWindows == True:
@@ -107,9 +112,13 @@ def show_webcam():
         elif (char == 'z'):
             zoom = not zoom
 
+
+
         # This magic line shuts down the app if a user presses the X button in the GUI
         if cv2.getWindowProperty('ExpatAudio AOI', cv2.WND_PROP_VISIBLE) < 1:
             break
+
+
 
 
             # Our operations on the frame come here
@@ -130,15 +139,34 @@ def show_webcam():
             OutputImage = cv2.addWeighted(gray, alpha, masker, beta, 0.0)
 
         if zoom == True:
-            sub = gray[320:454, 544:680]
-            ZoomedImage = cv2.resize(sub, (0, 0), fx=4, fy=4)
+            msepos = [200,200]
+            msepos[0] = mouse_current_pos[0]
+            msepos[1] = mouse_current_pos[1]
+            minzoomY = 50
+            maxzoomY = (camerapixwidth - 50)
+            msepos[0] = max(minzoomY, msepos[0])
+            msepos[0] = min(maxzoomY, msepos[0])
+            minzoomX = 50
+            maxzoomX = (camerapixheight - 50)
+            msepos[1] = max(minzoomX, msepos[1])
+            msepos[1] = min(maxzoomX, msepos[1])
+
+
+            print(msepos[0])
+            print(msepos[1])
+            xstart = msepos[1]-50
+            xstop = msepos[1]+50
+            ystart = msepos[0]-50
+            ystop = msepos[0]+50
+            sub = gray[xstart:xstop, ystart:ystop]
+            ZoomedImage = cv2.resize(sub, (400,400), fx=4, fy=4)
             cv2.imshow('ZOOM', ZoomedImage)
+
         else:
             cv2.destroyWindow("ZOOM")
 
         # Display the resulting frame
         cv2.imshow('ExpatAudio AOI', OutputImage)
-
 
     # When everything done, release the capture
     cap.release()

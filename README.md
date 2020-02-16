@@ -13,3 +13,13 @@ Current version only does the masking (and creating masks etc).
 
 Please contribute if you have better skills than me!
 /Rochey
+
+# User Interface
+- Q to quit
+- M to Mask only areas from cam
+- B to blend
+- L to load mask
+- S to save mask
+- R to reset the mask
+- Z to zoom in 4x on an area defined by the placement of the mouse
+- Use left mouse button to start drawing areas to mask, easier if in blend mode"
