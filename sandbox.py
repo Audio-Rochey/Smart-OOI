@@ -16,8 +16,8 @@ import easygui
 
 # User set parameters
 camerapixwidth = 1280
-camerapixheight = 720 # Resolution to be used. this is very camera specific.
-SelectedCam = 0 # Which webcam will be used?
+camerapixheight = 960 # Resolution to be used. this is very camera specific.
+SelectedCam = 1 # Which webcam will be used?
 UsingWindows = True # Later in the code, this is used to allow directx to talk to webcams (for more resolution flexibility)
 
 easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nZ to zoom in on an area\nUse left mouse button to start drawing areas to mask, easier if in blend mode", title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
@@ -111,8 +111,9 @@ def show_webcam():
             blend = not blend
         elif (char == 'z'):
             zoom = not zoom
-
-
+        elif (char == 'h'):
+            easygui.msgbox(msg="Q to quit\nM to Mask only areas from cam\nB to blend\nL to load mask\nS to save mask\nR to reset the mask\nZ to zoom in on an area\nUse left mouse button to start drawing areas to mask, easier if in blend mode",
+                title='Expat Audio Optical Inspection ', ok_button='OK', image=None, root=None)
 
         # This magic line shuts down the app if a user presses the X button in the GUI
         if cv2.getWindowProperty('ExpatAudio AOI', cv2.WND_PROP_VISIBLE) < 1:
